@@ -1,9 +1,24 @@
-
-language: cpp
-
-os:
-  - osx
-  - linux
+language: generic
+branches:
+  only:
+    - master
+matrix:
+  include:
+  - os: linux
+    dist: bionic
+    sudo: required
+    language: cpp
+    compiler: gcc
+    addons:
+      apt:
+        sources:
+          - ubuntu-toolchain-r-test
+        packages:
+          - g++-8
+  - os: osx
+    osx_image: xcode10.2
+    language: c++
+    compiler: clang
 
 addons:
   apt:
@@ -14,8 +29,8 @@ addons:
       - g++-5
 
 before_install:
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-5 60 --slave /usr/bin/g++ g++ /usr/bin/g++-5; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo ln -fs /usr/bin/gcc-8 /usr/local/bin/gcc; sudo ln -fs /usr/bin/g++-8 /usr/local/bin/g++; fi
 
 script:
-  - make clean all check
+  - make clean all check _CXXFLAGS="-Werror"
   - ./bench
